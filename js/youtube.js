@@ -92,6 +92,74 @@ function updateSearchStatus(keyword, video, status = 'searching') {
     }
 }
 
+// 검색 이력 관리
+let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+
+// 이력 저장
+function saveToHistory(video, keyword) {
+    const historyItem = {
+        id: video.id.videoId,
+        title: video.snippet.title,
+        thumbnail: video.snippet.thumbnails.high.url,
+        channelTitle: video.snippet.channelTitle,
+        publishedAt: video.snippet.publishedAt,
+        keyword: keyword,
+        timestamp: new Date().toISOString()
+    };
+
+    // 중복 제거
+    searchHistory = searchHistory.filter(item => item.id !== historyItem.id);
+    
+    // 새 항목 추가
+    searchHistory.unshift(historyItem);
+    
+    // 최대 10개까지만 저장
+    if (searchHistory.length > 10) {
+        searchHistory = searchHistory.slice(0, 10);
+    }
+
+    // 로컬 스토리지에 저장
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+    
+    // UI 업데이트
+    updateHistoryUI();
+}
+
+// 이력 UI 업데이트
+function updateHistoryUI() {
+    const historyContainer = document.getElementById('historyContainer');
+    if (!historyContainer) return;
+
+    if (searchHistory.length === 0) {
+        historyContainer.innerHTML = '<p class="no-history">검색 이력이 없습니다.</p>';
+        return;
+    }
+
+    historyContainer.innerHTML = searchHistory.map(item => `
+        <div class="history-item" data-video-id="${item.id}">
+            <img class="history-thumbnail" src="${item.thumbnail}" alt="${item.title}">
+            <div class="history-info">
+                <div class="history-title">${item.title}</div>
+                <div class="history-meta">
+                    <span class="history-keyword">${item.keyword}</span>
+                    <span class="history-date">${new Date(item.timestamp).toLocaleString()}</span>
+                </div>
+            </div>
+            <div class="history-actions">
+                <button class="watch-btn" onclick="window.open('https://www.youtube.com/watch?v=${item.id}', '_blank')">보기</button>
+                <button class="remove-btn" onclick="removeFromHistory('${item.id}')">삭제</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 이력에서 항목 제거
+function removeFromHistory(videoId) {
+    searchHistory = searchHistory.filter(item => item.id !== videoId);
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+    updateHistoryUI();
+}
+
 // YouTube 비디오 검색
 async function searchYouTubeVideos(keyword) {
     if (!YOUTUBE_API_KEY) {
@@ -105,7 +173,7 @@ async function searchYouTubeVideos(keyword) {
         const encodedKeyword = encodeURIComponent(keyword);
         const url = `${YOUTUBE_API_URL}?part=snippet&q=${encodedKeyword}&type=video&order=date&maxResults=1&key=${YOUTUBE_API_KEY}`;
         
-        console.log('Request URL:', url); // 디버깅용 로그
+        console.log('Request URL:', url);
 
         const response = await fetch(url);
         const data = await response.json();
@@ -127,6 +195,9 @@ async function searchYouTubeVideos(keyword) {
 
         // 비디오 정보 표시
         displayVideo(video);
+
+        // 이력에 저장
+        saveToHistory(video, keyword);
 
         // 스크립트 추출 및 요약 생성
         await processVideoScript(video);
@@ -318,4 +389,10 @@ function showError(keyword, message) {
         <small>API URL: ${YOUTUBE_API_URL}</small>
     `;
     elements.videoContainer.appendChild(errorElement);
-} 
+}
+
+// 페이지 로드 시 이력 UI 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    initializeYoutubeApiKeyInput();
+    updateHistoryUI();
+}); 
