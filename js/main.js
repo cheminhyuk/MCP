@@ -83,6 +83,9 @@ function startTimer() {
     // 타이머 업데이트 시작
     state.timer = setInterval(updateTimer, 1000);
     updateTimer();
+    
+    // 타이머 시작 시 즉시 실행
+    runScheduledUpdate();
 }
 
 // 타이머 중지
@@ -98,7 +101,13 @@ function stopTimer() {
 
 // 타이머 업데이트
 function updateTimer() {
-    if (!elements.timeRemaining || !state.nextUpdate) return;
+    if (!elements.timeRemaining) return;
+    
+    // nextUpdate가 없으면 타이머 시작
+    if (!state.nextUpdate) {
+        startTimer();
+        return;
+    }
 
     const now = new Date();
     const timeLeft = state.nextUpdate - now;
