@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자동 최신 youtube 검색 및 요약</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>자동 최신 youtube 검색 및 요약</h1>
+        </header>
+
+        <main>
+            <!-- 키워드 설정 섹션 -->
+            <section class="keyword-section">
+                <h2>검색 키워드 설정</h2>
+                <div class="input-group">
+                    <input type="text" id="keywordInput" placeholder="검색할 키워드를 입력하세요">
+                    <button id="addKeyword">추가</button>
+                </div>
+                <div class="keyword-list" id="keywordList">
+                    <!-- 키워드 목록이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </section>
+
+            <!-- 타이머 섹션 -->
+            <section class="timer-section">
+                <div class="timer-display" id="timerDisplay">
+                    <span class="timer-label">다음 업데이트:</span>
+                    <span id="timeRemaining">--:--</span>
+                    <button id="runNow" class="run-now-btn">즉시 실행</button>
+                </div>
+            </section>
+
+            <!-- 비디오 결과 섹션 -->
+            <section class="results-section">
+                <h2>검색 결과</h2>
+                <div class="results-container" id="resultsContainer">
+                    <!-- 검색 결과가 여기에 동적으로 추가됩니다 -->
+                </div>
+            </section>
+
+            <!-- 요약 섹션 -->
+            <section class="summary-section">
+                <h2>영상 스크립트 요약</h2>
+                <div class="summary-container" id="summaryContainer">
+                    <!-- 요약 내용이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </section>
+
+            <!-- 설정 섹션 -->
+            <section class="settings-section">
+                <h2>API 설정</h2>
+                <div class="settings-container">
+                    <div class="api-key-input">
+                        <label for="openaiApiKey">OpenAI API Key:</label>
+                        <input type="password" id="openaiApiKey" placeholder="OpenAI API 키를 입력하세요">
+                        <button id="saveOpenaiKey">저장</button>
+                    </div>
+                    <div class="api-status">
+                        <span id="openaiKeyStatus">OpenAI API 키가 설정되지 않았습니다.</span>
+                    </div>
+                    
+                    <div class="api-key-input">
+                        <label for="youtubeApiKey">YouTube API Key:</label>
+                        <input type="password" id="youtubeApiKey" placeholder="YouTube API 키를 입력하세요">
+                        <button id="saveYoutubeKey">저장</button>
+                    </div>
+                    <div class="api-status">
+                        <span id="youtubeKeyStatus">YouTube API 키가 설정되지 않았습니다.</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/youtube.js"></script>
+    <script src="js/summary.js"></script>
+</body>
+</html> 

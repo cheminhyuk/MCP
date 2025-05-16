@@ -1,0 +1,718 @@
+/* 기본 스타일 리셋 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 헤더 스타일 */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    color: #2c3e50;
+    font-size: 2.2em;
+}
+
+/* 섹션 공통 스타일 */
+section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 1.5em;
+}
+
+/* 키워드 섹션 스타일 */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.keyword-item {
+    background-color: #e9ecef;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.keyword-item button {
+    padding: 4px 8px;
+    background-color: #dc3545;
+    font-size: 12px;
+}
+
+/* 타이머 섹션 스타일 */
+.timer-section {
+    text-align: center;
+    padding: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+.timer-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1em;
+    color: #007bff;
+    background-color: #f8f9fa;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-flex;
+}
+
+.timer-label {
+    color: #666;
+}
+
+#timeRemaining {
+    font-weight: bold;
+    min-width: 50px;
+}
+
+.run-now-btn {
+    background-color: #28a745;
+    font-size: 0.9em;
+    padding: 6px 12px;
+    margin-left: 10px;
+}
+
+.run-now-btn:hover {
+    background-color: #218838;
+}
+
+/* 결과 섹션 스타일 */
+.results-container {
+    display: grid;
+    gap: 20px;
+}
+
+.video-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.video-info {
+    padding: 20px;
+}
+
+.video-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.video-summary {
+    color: #666;
+    line-height: 1.6;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* 로딩 스타일 */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #007bff;
+    animation: spin 1s linear infinite;
+}
+
+/* 에러 메시지 스타일 */
+.error {
+    background-color: #fff3f3;
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    color: #dc3545;
+}
+
+.error h3 {
+    margin-bottom: 10px;
+    color: #dc3545;
+}
+
+.error p {
+    margin: 5px 0;
+    color: #666;
+}
+
+/* 버튼 비활성화 스타일 */
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 실행 중 버튼 스타일 */
+button.running {
+    background-color: #28a745;
+    position: relative;
+}
+
+button.running::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 8px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top: 2px solid transparent;
+    animation: spin 1s linear infinite;
+}
+
+/* 버전 표시를 위한 스타일 */
+header h1::after {
+    content: "v0.1";
+    font-size: 0.4em;
+    color: #666;
+    margin-left: 10px;
+    vertical-align: super;
+}
+
+/* 입력 그룹 스타일 */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* 키워드 리스트 스타일 */
+.keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.keyword-item {
+    background-color: #e9ecef;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.keyword-item button {
+    padding: 4px 8px;
+    background-color: #dc3545;
+    font-size: 12px;
+}
+
+/* 비디오 컨테이너 스타일 */
+.video-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* 비디오 카드 스타일 수정 */
+.video-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.video-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.video-info {
+    padding: 20px;
+}
+
+.video-info h4 {
+    color: #2c3e50;
+    margin: 15px 0 10px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.video-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.video-description,
+.video-transcript,
+.video-summary {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.video-summary {
+    background-color: #e8f4f8;
+    border-left: 4px solid #007bff;
+}
+
+.video-summary h4 {
+    color: #007bff;
+}
+
+.video-description p,
+.video-transcript p,
+.video-summary p {
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* 로딩 스피너 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #007bff;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 즉시 실행 버튼 스타일 */
+#runNow {
+    background-color: #28a745;
+}
+
+#runNow:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+#runNow:disabled {
+    background-color: #6c757d;
+}
+
+/* 마지막 업데이트 시간 표시 */
+.last-update {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* 검색 상태 스타일 */
+.search-status {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.search-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.keyword-label {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.video-title {
+    flex: 1;
+    margin: 0 15px;
+    color: #333;
+}
+
+.search-time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.watch-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff0000;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+}
+
+.watch-button:hover {
+    background-color: #cc0000;
+}
+
+/* 리포트 섹션 스타일 */
+.report-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.report-container {
+    margin-top: 15px;
+}
+
+.report-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.report-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.report-time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.report-content {
+    margin-top: 15px;
+}
+
+.report-section-title {
+    color: #007bff;
+    font-size: 1.1em;
+    margin: 15px 0 10px 0;
+}
+
+.report-text {
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #007bff;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 설정 섹션 스타일 */
+.settings-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.api-key-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.api-key-input label {
+    min-width: 120px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.api-key-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.api-key-input button {
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.api-key-input button:hover {
+    background-color: #218838;
+}
+
+.api-status {
+    font-size: 14px;
+    color: #666;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.api-status.valid {
+    color: #28a745;
+    background-color: #d4edda;
+}
+
+.api-status.invalid {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+/* 타이머 디스플레이 스타일 */
+.timer-display {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.timer-text {
+    font-size: 1.2em;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* 실행 이력 섹션 스타일 */
+.history-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.history-container {
+    margin-top: 15px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-keyword {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.history-time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.history-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* 요약 섹션 스타일 */
+.summary-section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.summary-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.summary-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.summary-card h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.summary-content {
+    color: #495057;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.summary-meta {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.summary-meta span {
+    margin-right: 15px;
+}
+
+/* 로딩 스피너 스타일 */
+.summary-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.summary-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 3px solid #007bff;
+    animation: spin 1s linear infinite;
+} 
