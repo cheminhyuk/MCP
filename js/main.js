@@ -41,6 +41,11 @@ function addKeyword() {
         updateKeywordList();
         elements.keywordInput.value = '';
         saveData();
+        
+        // 키워드가 추가되면 타이머 시작
+        if (!state.timer) {
+            startTimer();
+        }
     }
 }
 
@@ -61,6 +66,34 @@ function removeKeyword(keyword) {
     state.keywords = state.keywords.filter(k => k !== keyword);
     updateKeywordList();
     saveData();
+    
+    // 키워드가 없으면 타이머 중지
+    if (state.keywords.length === 0 && state.timer) {
+        stopTimer();
+    }
+}
+
+// 타이머 시작
+function startTimer() {
+    if (state.timer) return;
+    
+    // 다음 업데이트 시간 설정
+    state.nextUpdate = new Date(new Date().getTime() + state.updateInterval);
+    
+    // 타이머 업데이트 시작
+    state.timer = setInterval(updateTimer, 1000);
+    updateTimer();
+}
+
+// 타이머 중지
+function stopTimer() {
+    if (state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+    }
+    if (elements.timeRemaining) {
+        elements.timeRemaining.textContent = '--:--';
+    }
 }
 
 // 타이머 업데이트
@@ -140,6 +173,11 @@ async function runNow() {
                 }
             }
         }
+        
+        // 즉시 실행 후 타이머 재시작
+        if (state.keywords.length > 0) {
+            startTimer();
+        }
     } catch (error) {
         console.error('Run now error:', error);
         alert('실행 중 오류가 발생했습니다.');
@@ -155,7 +193,8 @@ async function runNow() {
 // 데이터 저장
 function saveData() {
     localStorage.setItem('researchAgent', JSON.stringify({
-        keywords: state.keywords
+        keywords: state.keywords,
+        nextUpdate: state.nextUpdate
     }));
 }
 
@@ -165,7 +204,15 @@ function loadSavedData() {
     if (savedData) {
         const data = JSON.parse(savedData);
         state.keywords = data.keywords || [];
+        if (data.nextUpdate) {
+            state.nextUpdate = new Date(data.nextUpdate);
+        }
         updateKeywordList();
+        
+        // 저장된 키워드가 있으면 타이머 시작
+        if (state.keywords.length > 0) {
+            startTimer();
+        }
     }
 }
 
@@ -173,5 +220,4 @@ function loadSavedData() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     loadSavedData();
-    updateTimer();
 }); 
