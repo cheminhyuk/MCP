@@ -75,7 +75,9 @@ function removeKeyword(keyword) {
 
 // 타이머 시작
 function startTimer() {
-    if (state.timer) return;
+    if (state.timer) {
+        clearInterval(state.timer);
+    }
     
     // 다음 업데이트 시간 설정
     state.nextUpdate = new Date(new Date().getTime() + state.updateInterval);
@@ -97,15 +99,15 @@ function stopTimer() {
     if (elements.timeRemaining) {
         elements.timeRemaining.textContent = '--:--';
     }
+    state.nextUpdate = null;
 }
 
 // 타이머 업데이트
 function updateTimer() {
     if (!elements.timeRemaining) return;
     
-    // nextUpdate가 없으면 타이머 시작
     if (!state.nextUpdate) {
-        startTimer();
+        elements.timeRemaining.textContent = '--:--';
         return;
     }
 
@@ -203,7 +205,7 @@ async function runNow() {
 function saveData() {
     localStorage.setItem('researchAgent', JSON.stringify({
         keywords: state.keywords,
-        nextUpdate: state.nextUpdate
+        nextUpdate: state.nextUpdate ? state.nextUpdate.getTime() : null
     }));
 }
 
