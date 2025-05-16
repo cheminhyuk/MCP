@@ -160,204 +160,176 @@ function removeFromHistory(videoId) {
     updateHistoryUI();
 }
 
-// YouTube 비디오 검색
+// YouTube 검색 함수
 async function searchYouTubeVideos(keyword) {
-    if (!YOUTUBE_API_KEY) {
-        updateYoutubeApiKeyStatus(false);
-        throw new Error('YouTube API 키를 먼저 설정해주세요.');
-    }
-
     try {
-        console.log(`Searching for keyword: ${keyword}`);
+        // 검색 결과 컨테이너
+        const resultsContainer = document.getElementById('resultsContainer');
+        if (!resultsContainer) return;
 
-        const encodedKeyword = encodeURIComponent(keyword);
-        const url = `${YOUTUBE_API_URL}?part=snippet&q=${encodedKeyword}&type=video&order=date&maxResults=1&key=${YOUTUBE_API_KEY}`;
+        // 로딩 표시
+        resultsContainer.innerHTML = '<div class="loading">검색 중...</div>';
+
+        // YouTube 검색 URL
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}&sp=CAI%253D`;
         
-        console.log('Request URL:', url);
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok) {
-            if (data.error?.code === 403) {
-                throw new Error('API 키가 유효하지 않거나 권한이 없습니다. Google Cloud Console에서 API 키 설정을 확인해주세요.');
+        // 검색 결과 가져오기
+        const response = await fetch(searchUrl);
+        const html = await response.text();
+        
+        // HTML 파싱
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // 비디오 정보 추출
+        const videoElements = doc.querySelectorAll('ytd-video-renderer');
+        const videos = [];
+        
+        for (const element of videoElements) {
+            try {
+                const titleElement = element.querySelector('#video-title');
+                const thumbnailElement = element.querySelector('#thumbnail img');
+                const channelElement = element.querySelector('#channel-name a');
+                const viewsElement = element.querySelector('#metadata-line span:first-child');
+                const publishedElement = element.querySelector('#metadata-line span:last-child');
+                
+                if (titleElement && thumbnailElement) {
+                    const videoId = titleElement.href.split('v=')[1]?.split('&')[0];
+                    if (!videoId) continue;
+                    
+                    videos.push({
+                        id: videoId,
+                        title: titleElement.textContent.trim(),
+                        thumbnail: thumbnailElement.src,
+                        channelTitle: channelElement?.textContent.trim() || 'Unknown Channel',
+                        viewCount: viewsElement?.textContent.trim() || '0 views',
+                        publishedAt: publishedElement?.textContent.trim() || 'Unknown date'
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing video element:', error);
             }
-            throw new Error(`YouTube API 오류: ${data.error?.message || response.statusText}`);
         }
 
-        if (!data.items || data.items.length === 0) {
-            console.log('No videos found for keyword:', keyword);
-            return false;
+        if (videos.length === 0) {
+            resultsContainer.innerHTML = '<div class="error">검색 결과가 없습니다.</div>';
+            return;
         }
 
-        const video = data.items[0];
-        console.log('Found video:', video.snippet.title);
+        // 검색 결과 표시
+        resultsContainer.innerHTML = videos.map(video => `
+            <div class="video-item">
+                <div class="video-thumbnail">
+                    <img src="${video.thumbnail}" alt="${video.title}">
+                </div>
+                <div class="video-info">
+                    <h3>${video.title}</h3>
+                    <p class="channel">${video.channelTitle}</p>
+                    <p class="views">${video.viewCount} • ${video.publishedAt}</p>
+                </div>
+                <div class="video-actions">
+                    <button onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">영상 보기</button>
+                    <button onclick="generateSummary('${video.id}')">요약하기</button>
+                </div>
+            </div>
+        `).join('');
 
-        // 비디오 정보 표시
-        displayVideo(video);
-
-        // 이력에 저장
-        saveToHistory(video, keyword);
-
-        // 스크립트 추출 및 요약 생성
-        await processVideoScript(video);
-
-        return true;
+        // 첫 번째 비디오 자동 요약
+        if (videos.length > 0) {
+            generateSummary(videos[0].id);
+        }
 
     } catch (error) {
-        console.error('YouTube API Error:', error);
-        const resultsContainer = document.getElementById('resultsContainer');
+        console.error('Error searching YouTube:', error);
         if (resultsContainer) {
             resultsContainer.innerHTML = `
                 <div class="error">
                     <h3>검색 중 오류가 발생했습니다</h3>
-                    <p>키워드: ${keyword}</p>
                     <p>오류 내용: ${error.message}</p>
-                    <p class="error-help">
-                        API 키 설정을 확인해주세요:<br>
-                        1. YouTube Data API v3가 활성화되어 있는지 확인<br>
-                        2. API 키에 YouTube Data API v3 사용 권한이 있는지 확인<br>
-                        3. API 키의 제한사항이 올바르게 설정되어 있는지 확인
-                    </p>
                 </div>
             `;
         }
-        throw error;
-    }
-}
-
-// 비디오 정보 표시
-function displayVideo(video) {
-    const resultsContainer = document.getElementById('resultsContainer');
-    if (!resultsContainer) {
-        console.error('Results container not found');
-        return;
-    }
-
-    const videoCard = document.createElement('div');
-    videoCard.className = 'video-card';
-    videoCard.innerHTML = `
-        <img class="video-thumbnail" src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}">
-        <div class="video-info">
-            <h3 class="video-title">${video.snippet.title}</h3>
-            <p class="video-channel">채널: ${video.snippet.channelTitle}</p>
-            <p class="video-date">업로드: ${new Date(video.snippet.publishedAt).toLocaleDateString()}</p>
-            <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank" class="watch-button">YouTube에서 보기</a>
-        </div>
-    `;
-
-    // 기존 내용을 지우고 새로운 비디오 카드 추가
-    resultsContainer.innerHTML = '';
-    resultsContainer.appendChild(videoCard);
-}
-
-// 비디오 스크립트 추출
-async function getVideoTranscript(videoId) {
-    try {
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`);
-        const data = await response.json();
-        
-        if (data.items && data.items.length > 0) {
-            return data.items[0].snippet.description;
-        }
-        return null;
-    } catch (error) {
-        console.error('Transcript fetch error:', error);
-        return null;
-    }
-}
-
-// 비디오 스크립트 처리 및 요약
-async function processVideoScript(video) {
-    const summaryContainer = document.getElementById('summaryContainer');
-    if (!summaryContainer) {
-        console.error('Summary container not found');
-        return;
-    }
-    
-    // 로딩 상태 표시
-    summaryContainer.innerHTML = `
-        <div class="summary-loading">
-            스크립트 추출 및 요약 생성 중...
-        </div>
-    `;
-
-    try {
-        // 스크립트 추출
-        const transcript = await getVideoTranscript(video.id.videoId);
-        console.log('Transcript status:', transcript ? 'Found' : 'Not found');
-
-        // 요약 생성
-        const summary = await generateSummary(transcript || video.snippet.description);
-        console.log('Summary generated');
-
-        // 요약 표시
-        const summaryCard = document.createElement('div');
-        summaryCard.className = 'summary-card';
-        summaryCard.innerHTML = `
-            <h3>${video.snippet.title}</h3>
-            <div class="summary-content">${summary}</div>
-            <div class="summary-meta">
-                <span>키워드: ${video.snippet.tags?.join(', ') || '없음'}</span>
-                <span>생성 시간: ${new Date().toLocaleString()}</span>
-            </div>
-        `;
-
-        summaryContainer.innerHTML = '';
-        summaryContainer.appendChild(summaryCard);
-
-    } catch (error) {
-        console.error('Script processing error:', error);
-        summaryContainer.innerHTML = `
-            <div class="error">
-                <h3>스크립트 처리 중 오류가 발생했습니다</h3>
-                <p>오류 내용: ${error.message}</p>
-            </div>
-        `;
     }
 }
 
 // 요약 생성 함수
-async function generateSummary(text) {
+async function generateSummary(videoId) {
     try {
-        // 텍스트가 너무 길 경우 앞부분만 사용
-        const truncatedText = text.substring(0, 1000);
+        const summaryContainer = document.getElementById('summaryContainer');
+        if (!summaryContainer) return;
+
+        // 로딩 표시
+        summaryContainer.innerHTML = '<div class="loading">요약 중...</div>';
+
+        // YouTube 영상 페이지 가져오기
+        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const videoResponse = await fetch(videoUrl);
+        const html = await videoResponse.text();
         
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // HTML 파싱
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // 영상 설명 추출
+        const description = doc.querySelector('#description-inline-expander')?.textContent.trim() || '';
+        
+        if (!description) {
+            summaryContainer.innerHTML = '<div class="error">영상 설명을 찾을 수 없습니다.</div>';
+            return;
+        }
+
+        // OpenAI API를 사용하여 요약
+        const openaiApiKey = localStorage.getItem('openai_api_key');
+        if (!openaiApiKey) {
+            summaryContainer.innerHTML = '<div class="error">OpenAI API 키가 설정되지 않았습니다.</div>';
+            return;
+        }
+
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
+                'Authorization': `Bearer ${openaiApiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [{
-                    role: "user",
-                    content: `다음 텍스트에서 핵심 키워드 3-5개를 추출하고, 각 키워드에 대한 주요 내용을 개조식으로 요약해주세요. 형식은 다음과 같이 작성해주세요:
-
-핵심 키워드: [키워드1], [키워드2], [키워드3]
-
-• [키워드1]: [관련 내용]
-• [키워드2]: [관련 내용]
-• [키워드3]: [관련 내용]
-
-텍스트:
-${truncatedText}`
-                }],
-                max_tokens: 300,
-                temperature: 0.7
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant that summarizes YouTube video descriptions.'
+                    },
+                    {
+                        role: 'user',
+                        content: `다음 YouTube 영상 설명을 요약해주세요:\n\n${description}`
+                    }
+                ],
+                max_tokens: 150
             })
         });
 
-        if (!response.ok) {
-            throw new Error('OpenAI API 요청 실패');
+        const data = await openaiResponse.json();
+        if (data.choices && data.choices[0]) {
+            const summary = data.choices[0].message.content;
+            summaryContainer.innerHTML = `
+                <div class="summary-content">
+                    <h3>영상 요약</h3>
+                    <p>${summary}</p>
+                </div>
+            `;
+        } else {
+            throw new Error('요약 생성에 실패했습니다.');
         }
 
-        const data = await response.json();
-        return data.choices[0].message.content;
     } catch (error) {
-        console.error('Summary generation error:', error);
-        return "요약을 생성할 수 없습니다.";
+        console.error('Error generating summary:', error);
+        if (summaryContainer) {
+            summaryContainer.innerHTML = `
+                <div class="error">
+                    <h3>요약 중 오류가 발생했습니다</h3>
+                    <p>오류 내용: ${error.message}</p>
+                </div>
+            `;
+        }
     }
 }
 
